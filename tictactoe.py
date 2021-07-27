@@ -25,8 +25,12 @@ def inputPlayerLetter():
     # Returns a list with the player's letter as the first item, and the computer's letter as the second.
     letter = ''
     while not (letter == 'X' or letter == 'O'):
-        print('Do you want to be X or O?')
-        letter = input().upper()
+        if mode == 'pvc':
+            print('Do you want to be X or O?')
+            letter = input().upper()
+        else:
+            print('Does Player 1 want to be X or O?')
+            letter = input().upper()
 
     # the first element in the tuple is the player's letter, the second is the computer's letter.
     if letter == 'X':
@@ -38,9 +42,12 @@ def inputPlayerLetter():
 def whoGoesFirst():
     # Randomly choose the player who goes first.
     if random.randint(0, 1) == 0:
-        return 'computer'
+        return 'player1'
     else:
-        return 'player'
+        if mode == 'pvc':
+            return 'computer'
+        else:
+            return 'player2'
 
 
 def playAgain():
@@ -85,8 +92,16 @@ def getPlayerMove(board):
     # Let the player type in his move.
     move = ' '
     while move not in '1 2 3 4 5 6 7 8 9'.split() or not isSpaceFree(board, int(move)):
-        print('What is your next move? (1-9)')
-        move = input()
+        if mode == 'pvc':
+            print('What is your next move? (1-9)')
+            move = input()
+        elif mode == 'pvp' and turn == 'player1':
+            print('What is Player 1\'s next move? (1-9)')
+            move = input()
+        else:
+            print('What is Player 2\'s next move? (1-9)')
+            move = input()
+
     return int(move)
 
 
@@ -149,51 +164,95 @@ def isBoardFull(board):
     return True
 
 
+def gameMode():
+    print('What mode would you like to play? (Player vs Computer (Enter "pvc") or Player vs Player (Enter "pvp)')
+    return input().lower()
+
+
 print('Welcome to Tic Tac Toe!')
 
 while True:
     # Reset the board
+    mode = gameMode()
+    if mode == 'pvc':
+        playerLetter, computerLetter = inputPlayerLetter()
+    else:
+        playerLetter, playerLetter2 = inputPlayerLetter()
     theBoard = [' '] * 10
-    playerLetter, computerLetter = inputPlayerLetter()
     turn = whoGoesFirst()
     print('The ' + turn + ' will go first.')
     gameIsPlaying = True
 
     while gameIsPlaying:
-        if turn == 'player':
-            # Player's turn.
-            drawBoard(theBoard)
-            move = getPlayerMove(theBoard)
-            makeMove(theBoard, playerLetter, move)
-
-            if isWinner(theBoard, playerLetter):
+        if mode == 'pvc':
+            if turn == 'player1':
+                # Player's turn.
                 drawBoard(theBoard)
-                print('Hooray! You have won the game!')
-                gameIsPlaying = False
-            else:
-                if isBoardFull(theBoard):
+                move = getPlayerMove(theBoard)
+                makeMove(theBoard, playerLetter, move)
+
+                if isWinner(theBoard, playerLetter):
                     drawBoard(theBoard)
-                    print('The game is a tie!')
-                    break
+                    print('Hooray! You have won the game!')
+                    gameIsPlaying = False
                 else:
-                    turn = 'computer'
+                    if isBoardFull(theBoard):
+                        drawBoard(theBoard)
+                        print('The game is a tie!')
+                        break
+                    else:
+                        turn = 'computer'
+
+            else:
+                # Computer's turn.
+                move = getComputerMove(theBoard, computerLetter)
+                makeMove(theBoard, computerLetter, move)
+
+                if isWinner(theBoard, computerLetter):
+                    drawBoard(theBoard)
+                    print('The computer has beaten you! You lose.')
+                    gameIsPlaying = False
+                else:
+                    if isBoardFull(theBoard):
+                        drawBoard(theBoard)
+                        print('The game is a tie!')
+                        break
+                    else:
+                        turn = 'player1'
 
         else:
-            # Computer's turn.
-            move = getComputerMove(theBoard, computerLetter)
-            makeMove(theBoard, computerLetter, move)
-
-            if isWinner(theBoard, computerLetter):
+            if turn == 'player1':
                 drawBoard(theBoard)
-                print('The computer has beaten you! You lose.')
-                gameIsPlaying = False
-            else:
-                if isBoardFull(theBoard):
+                move = getPlayerMove(theBoard)
+                makeMove(theBoard, playerLetter, move)
+
+                if isWinner(theBoard, playerLetter):
                     drawBoard(theBoard)
-                    print('The game is a tie!')
-                    break
+                    print('Hooray! Player 1 has won the game!')
+                    gameIsPlaying = False
                 else:
-                    turn = 'player'
+                    if isBoardFull(theBoard):
+                        drawBoard(theBoard)
+                        print('The game is a tie!')
+                        break
+                    else:
+                        turn = 'player2'
+            else:
+                drawBoard(theBoard)
+                move = getPlayerMove(theBoard)
+                makeMove(theBoard, playerLetter2, move)
+
+                if isWinner(theBoard, playerLetter2):
+                    drawBoard(theBoard)
+                    print('Hooray! Player 2 has won the game!')
+                    gameIsPlaying = False
+                else:
+                    if isBoardFull(theBoard):
+                        drawBoard(theBoard)
+                        print('The game is a tie!')
+                        break
+                    else:
+                        turn = 'player1'
 
     if not playAgain():
         break
