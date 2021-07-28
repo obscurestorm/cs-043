@@ -158,7 +158,11 @@ class Game:
 
     def gameMode(self):
         print('What mode would you like to play? (Player vs Computer (Enter "pvc") or Player vs Player (Enter "pvp")')
-        return input().lower()
+        choice = input()
+        while choice != 'pvc' and choice != 'pvp':
+            print('What mode would you like to play? (Player vs Computer (Enter "pvc") or Player vs Player (Enter "pvp")')
+            choice = input()
+        return choice.lower()
 
 
 def play():
